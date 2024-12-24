@@ -4,7 +4,7 @@ import Search from '../features/order/Search'
 
 export default function Header() {
   return (
-    <header>
+    <header className='bg-yellow-500'>
         <Link to='/'>Fast React Pizza Co.</Link>
         <Search />
         <p>Pizza Fast</p>
