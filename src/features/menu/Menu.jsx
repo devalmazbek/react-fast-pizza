@@ -8,8 +8,8 @@ function Menu() {
   const data = useLoaderData();
 
   return (
-    <ul>
-      {data && data.map((pizza) => <MenuItem pizza={pizza} />)}
+    <ul className="divide-y divide-stone-200 px-2">
+      {data && data.map((pizza) => <MenuItem pizza={pizza} key={pizza.id} />)}
     </ul>
   );
 }
