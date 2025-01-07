@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
+
 import { createOrder } from "../../services/apiRestaurant";
 import Button from "../../ui/Button";
-import { useSelector } from "react-redux";
-import { use } from "react";
+import { getCart, getTotalPrice } from "../cart/cartSlice";
+import { formatCurrency } from "../../utils/helpers";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -36,15 +38,20 @@ const fakeCart = [
 ];
 
 function CreateOrder() {
+  const [withPriority, setWithPriority] = useState(false);
   const navigation = useNavigation();
   const formErrors = useActionData();
 
   const isSubmitting = navigation.state === 'submitting';
 
+  const cart = useSelector(getCart);
   const username = useSelector((state) => state.user.username);
 
-  // const [withPriority, setWithPriority] = useState(false);
-  const cart = fakeCart;
+  const totalCartPrice = useSelector(getTotalPrice);
+  const priority = withPriority ? totalCartPrice * 0.2 : 0;
+  const totalPrice = totalCartPrice + priority;
+
+
 
   return (
     // <div>
@@ -132,8 +139,8 @@ function CreateOrder() {
            type="checkbox"
            name="priority"
            id="priority"
-           // value={withPriority}
-           // onChange={(e) => setWithPriority(e.target.checked)}
+           value={withPriority}
+           onChange={(e) => setWithPriority(e.target.checked)}
          />
          <label htmlFor="priority" className="font-medium">
            Want to yo give your order priority?
@@ -143,7 +150,7 @@ function CreateOrder() {
        <div>
          <input type="hidden" name="cart" value={JSON.stringify(cart)} />
          <Button disabled={isSubmitting} type="primary">
-           {isSubmitting ? 'Placing order....' : 'Order now'}
+           {isSubmitting ? 'Placing order....' : `Order now ${formatCurrency(totalPrice)}`}
          </Button>
        </div>
      </Form>
@@ -159,7 +166,7 @@ export async function action({request}) {
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
-    priority: data.priority === "on",
+    priority: data.priority === "true",
   }
 
   const error = {};
